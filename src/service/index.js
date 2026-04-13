@@ -1,12 +1,20 @@
 const User = require("../models/users/index");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const {JWT_SECRET} = require("../config/env")
+const JWT_SECRET = require("../config/env").secrets.JWT_SECRET;
 exports.registerService = async({firstName,lastName,password,location,phoneNo,emailAddress,role="user"}) => {
     if(!firstName || !lastName || !password || !location || !phoneNo || !emailAddress || !role) {
         return {
             data:null,
             message:"Required fields are missing",
+            statusCode:400
+        }
+    }
+
+    if(role!=="user"){
+        return {
+            data:null,
+            message:"Register as user,bro!!!",
             statusCode:400
         }
     }
@@ -24,7 +32,7 @@ exports.registerService = async({firstName,lastName,password,location,phoneNo,em
         }
     }
 
-    const hashedPassword = bcrypt.hash(password,10);
+    const hashedPassword = await bcrypt.hash(password,10);
 
     const user = await User.create({
         firstName,
@@ -71,6 +79,9 @@ exports.loginPhoneService = async ({phoneNo,password}) =>{
         }
     }
 
+    
+    
+    
     const token = jwt.sign({id:user._id,phoneNo:user.phoneNo},JWT_SECRET);
 
     return {
@@ -117,4 +128,51 @@ exports.loginEmailService = async ({emailAddress,password})=>{
     }
 }
 
+exports.registerProviderService = async ({firstName,lastName,password,location,phoneNo,emailAddress,role})=>{
+    if(!firstName || !lastName || !password || !location || !phoneNo || !emailAddress || !role) {
+        return {
+            data:null,
+            message:"Required fields are missing",
+            statusCode:400
+        }
+    }
 
+    if(role!=="provider"){
+        return {
+            data:null,
+            message:"Role not correct!",
+            statusCode:400
+        }
+    }
+
+    const userExists = await Promise.all([
+        User.findOne({phoneNo}),
+        User.findOne({emailAddress})
+    ]);
+
+    if(userExists){
+        return {
+            data:null,
+            message:"Provider exists already",
+            statusCode:400
+        }
+    }
+
+    const hashedPassword = await bcrypt.hash(password,10);
+
+    const provider = await User.create({
+        firstName,
+        lastName,
+        password:hashedPassword,
+        location,
+        phoneNo,
+        emailAddress,
+        role
+    })
+
+    return {
+        data:{firstName,lastName},
+        message:"Registered Successfully",
+        statusCode:201
+    }
+}
