@@ -11,9 +11,9 @@ const userSchema = mongoose.Schema({
         pincode:{type:String,required:true},
         country:{type:String,required:true}
     },
-    phoneNo:{type:Number,required:true},
-    emailAddress:{type:String,required:true},
-    role:{type:String,enum:["admin","provider","user"]}
+    phoneNo:{type:Number,required:true,unique:true},
+    emailAddress:{type:String,required:true,unique:true},
+    role:{type:String,enum:["admin","provider","user"]},
 })
 
 const User = mongoose.model("user",userSchema);

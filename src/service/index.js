@@ -82,7 +82,7 @@ exports.loginPhoneService = async ({phoneNo,password}) =>{
     
     
     
-    const token = jwt.sign({id:user._id,phoneNo:user.phoneNo},JWT_SECRET);
+    const token = jwt.sign({id:user._id,role:user.role},JWT_SECRET);
 
     return {
         data:token,
@@ -119,7 +119,7 @@ exports.loginEmailService = async ({emailAddress,password})=>{
         }
     }
 
-    const token = jwt.sign({id:user._id,emailAddress:user.emailAddress},JWT_SECRET);
+    const token = jwt.sign({id:user._id,role:user.role},JWT_SECRET);
 
     return {
         data:token,
@@ -128,51 +128,66 @@ exports.loginEmailService = async ({emailAddress,password})=>{
     }
 }
 
-exports.registerProviderService = async ({firstName,lastName,password,location,phoneNo,emailAddress,role})=>{
-    if(!firstName || !lastName || !password || !location || !phoneNo || !emailAddress || !role) {
-        return {
-            data:null,
-            message:"Required fields are missing",
-            statusCode:400
-        }
-    }
+exports.registerProviderService = async ({
+  firstName,
+  lastName,
+  password,
+  location,
+  phoneNo,
+  emailAddress,
+  admin
+}) => {
 
-    if(role!=="provider"){
-        return {
-            data:null,
-            message:"Role not correct!",
-            statusCode:400
-        }
-    }
-
-    const userExists = await Promise.all([
-        User.findOne({phoneNo}),
-        User.findOne({emailAddress})
-    ]);
-
-    if(userExists){
-        return {
-            data:null,
-            message:"Provider exists already",
-            statusCode:400
-        }
-    }
-
-    const hashedPassword = await bcrypt.hash(password,10);
-
-    const provider = await User.create({
-        firstName,
-        lastName,
-        password:hashedPassword,
-        location,
-        phoneNo,
-        emailAddress,
-        role
-    })
-
+  if (!firstName || !lastName || !password || !location || !phoneNo || !emailAddress) {
     return {
-        data:{firstName,lastName},
-        message:"Registered Successfully",
-        statusCode:201
-    }
-}
+      data: null,
+      message: "Required fields are missing",
+      statusCode: 400
+    };
+  }
+
+  if (admin !== "admin") {
+    return {
+      data: null,
+      message: "Access Denied",
+      statusCode: 403
+    };
+  }
+
+  const [userPhone, userEmail] = await Promise.all([
+    User.findOne({ phoneNo }),
+    User.findOne({ emailAddress })
+  ]);
+
+  if (userPhone || userEmail) {
+    return {
+      data: null,
+      message: "User already exists",
+      statusCode: 400
+    };
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const provider = await User.create({
+    firstName,
+    lastName,
+    password: hashedPassword,
+    location,
+    phoneNo,
+    emailAddress,
+    role: "provider"
+  });
+
+  return {
+    data: {
+      id: provider._id,
+      firstName: provider.firstName,
+      lastName: provider.lastName,
+      emailAddress: provider.emailAddress
+    },
+    message: "Provider Registered Successfully",
+    statusCode: 201
+  };
+};
+
