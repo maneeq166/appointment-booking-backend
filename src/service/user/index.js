@@ -1,7 +1,7 @@
-const User = require("../models/users/index");
+const User = require("../../models/users/index");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = require("../config/env").secrets.JWT_SECRET;
+const JWT_SECRET = require("../../config/env").secrets.JWT_SECRET;
 exports.registerService = async({firstName,lastName,password,location,phoneNo,emailAddress,role="user"}) => {
     if(!firstName || !lastName || !password || !location || !phoneNo || !emailAddress || !role) {
         return {
