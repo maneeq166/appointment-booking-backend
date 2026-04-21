@@ -1,6 +1,6 @@
 const apiResponse = require("../../utils/apiResponse");
 const {asyncHandler} = require("../../utils/asyncHandler");
-const {registerService, loginPhoneService, loginEmailService, registerProviderService} = require("../../service/index");
+const {registerService, loginPhoneService, loginEmailService, registerProviderService} = require("../../service/user/index");
 
 exports.registerController = asyncHandler(async(req,res)=>{
     const {firstName,lastName,password,location,phoneNo,emailAddress,role} = req.body;

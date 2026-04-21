@@ -8,9 +8,13 @@ const slotSchema = mongoose.Schema(
       required: true,
     },
     date: { type: Date, required: true },
-    startTime: { type: Date, required: true },
-    endTime: { type: Date, required: true },
-    available: { type: Boolean, required: true, default: true },
+    startTime: { type: Date, required: true ,unique:true },
+    endTime: { type: Date, required: true ,unique:true},
+    status: {
+  type: String,
+  enum: ["available", "booked"],
+  default: "available"
+},
   },
   { timestamps: true },
 );
