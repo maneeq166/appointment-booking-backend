@@ -60,7 +60,7 @@ exports.loginPhoneService = async ({phoneNo,password}) =>{
         }
     }
 
-    const user = await User.findOne({phoneNo});
+    const user = await User.findOne({phoneNo}).select("_id role password").lean();
 
     if(!user){
         return {
