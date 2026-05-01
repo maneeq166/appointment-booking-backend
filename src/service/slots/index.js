@@ -1,5 +1,7 @@
 const User = require("../../models/users/index");
 const Slot = require("../../models/slots/index");
+const Booking = require("../../models/booking/index");
+
 
 exports.createSlotService = async (providerId, startTime, endTime) => {
   if (!providerId || !startTime || !endTime) {
@@ -111,3 +113,4 @@ exports.getSlotServices = async (date) => {
     statusCode: 200,
   };
 };
+
