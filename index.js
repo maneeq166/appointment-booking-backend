@@ -74,7 +74,7 @@ if (NODE_ENV === "development") {
 app.get("/", (req, res) => res.send("Welcome to the API"));
 app.use("/api/auth",require("./src/routes/user/index"));
 app.use("/api/slot",require("./src/routes/slots/index"));
-
+app.use("/api/booking",require("./src/routes/booking/index"));
 //  404 Fallback
 app.use((req, res, next) => {
   return res
