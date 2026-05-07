@@ -1,5 +1,6 @@
 const Booking = require("../../models/booking/index");
 const Slot = require("../../models/slots/index");
+const User = require("../../models/users/index");
 
 exports.bookSlotServices = async (userId,slotId) =>{
   if(!userId || !slotId){
@@ -35,7 +36,7 @@ exports.bookSlotServices = async (userId,slotId) =>{
   }
 }
 
-exports.readBookedSlots = async(userId,date) =>{
+exports.readBookedSlots = async(userId,date,status) =>{
   if(!userId){
     return {
       data:null,
@@ -44,12 +45,22 @@ exports.readBookedSlots = async(userId,date) =>{
     }
   }
 
-  let query;
+  const user = await User.findById(userId);
+
+  if(user.role==="user"){
+    return {
+      data:null,
+      message:"Not Authorized",
+      statusCode:403
+    }
+  }
+
+  let query={};
 
   if(date){
     const selectedDate = new Date(date);
 
-    if(isNaN(selectedDate.getTime())||selectedDate<new Date()){
+    if(isNaN(selectedDate.getTime())){
       return {
         data:null,
         message:"Invalid date format",
@@ -64,15 +75,17 @@ exports.readBookedSlots = async(userId,date) =>{
     const endOfDay = new Date(selectedDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    query.startTime = {
+    query.date = {
       $gte: startOfDay,
       $lte: endOfDay,
     };
   }
 
+  if(status){
+    query.status=status;
+  }
 
-
-  const bookings = query?await Booking.find({date:query}).sort({date:1}):await Booking.find();
+  const bookings = query?await Booking.find(query).sort({date:1}):await Booking.find();
 
   return {
     data:bookings,

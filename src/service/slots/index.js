@@ -105,7 +105,9 @@ exports.getSlotServices = async (date) => {
 
   const slots = date
     ? await Slot.find(query).sort({ startTime: 1 })
-    : await Slot.find({ status: "available", date: { $gte: new Date() } });
+    : await Slot.find({ status: "available", 
+      // date: { $gte: new Date() }
+     });
 
   return {
     data: slots,

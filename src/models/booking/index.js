@@ -17,8 +17,16 @@ const BookingSchema = new mongoose.Schema({
         ref:"user",
         required:true,
     },
-    cancelled:{type:Boolean,default:false},
-    accepted:{type:Boolean,default:false},
+    status: {
+  type: String,
+  enum: [
+    "booked",
+    "cancelled",
+    "completed",
+    "no-show"
+  ],
+  default: "booked"
+}
 },{timestamps:true});
 
 const Booking = mongoose.model("booking",BookingSchema);
