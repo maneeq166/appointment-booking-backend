@@ -20,6 +20,24 @@ exports.bookSlotServices = async (userId,slotId) =>{
     };
   }
 
+  if (slot.status !== "available") {
+    return {
+      data: null,
+      message: "Slot is no longer available",
+      statusCode: 400,
+    };
+  }
+
+  const existingBooking = await Booking.findOne({ slotId, status: "booked" });
+
+  if (existingBooking) {
+    return {
+      data: null,
+      message: "Slot already booked",
+      statusCode: 400,
+    };
+  }
+
   const date = slot.date;
 
   const booking = await Booking.create({
@@ -28,6 +46,9 @@ exports.bookSlotServices = async (userId,slotId) =>{
     providerId:slot.providerId,
     userId,
   });
+
+  slot.status = "booked";
+  await slot.save();
 
   return {
     data:booking,

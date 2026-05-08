@@ -24,10 +24,10 @@ exports.registerService = async({firstName,lastName,password,location,phoneNo,em
         User.findOne({emailAddress})
     ]);
 
-    if(!userExists){
+    if(userExists[0] || userExists[1]){
         return {
             data:null,
-            message:"Something went wrong",
+            message:"User already exists",
             statusCode:400
         }
     }
