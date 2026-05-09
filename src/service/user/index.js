@@ -146,7 +146,9 @@ exports.registerProviderService = async ({
     };
   }
 
-  if (admin !== "admin") {
+  const role = await User.findById(admin);
+
+  if (role.role !== "admin") {
     return {
       data: null,
       message: "Access Denied",
@@ -191,3 +193,122 @@ exports.registerProviderService = async ({
   };
 };
 
+
+exports.getMeService = async (id)=>{
+    if(!id){
+        return {
+            data:null,
+            statusCode:400,
+            message:"Required fields are missing"
+        }
+    }
+
+    const user = await User.findById(id);
+
+    if(!user){
+        return {
+            data:null,
+            message:"User not Found",
+            statusCode:404
+        }
+    }
+
+    return {
+        data:user,
+        message:"User Founded",
+        statusCode:200
+    }
+}
+
+exports.updateMeService = async (data,id) =>{
+    if(!data||!id){
+        return {
+            data:null,
+            message:"Required fields are missing",
+            statusCode:400
+        }
+    }
+
+    if(data.role){
+        delete data.role;
+    }
+
+    const user = await User.findByIdAndUpdate(id,data,{new:true});
+
+    if(!user){
+        return {
+            data:null,
+            message:"User not Found",
+            statusCode:404
+        }
+    }
+
+    return {
+        data:user,
+        message:"User Updated",
+        statusCode:200
+    }
+}
+
+exports.deleteMeService = async (id) =>{
+    if(!id){
+        return {
+            data:null,
+            message:"Required fields are missing",
+            statusCode:400
+        }
+    }
+
+    const user = await User.findByIdAndDelete(id);
+
+    if(!user){
+        return {
+            data:null,
+            message:"User not found",
+            statusCode:404
+        }
+    }
+
+    return {
+        data:user,
+        message:"User deleted",
+        statusCode:200
+    }
+}
+
+exports.changePassword = async (id,password,changePassword) =>{
+    if(!id||!password||!changePassword){
+        return {
+            data:null,
+            message:"Required fields are missing",
+            statusCode:400
+        }
+    }
+
+    const user = await User.findById(id);
+
+    if(!user){
+        return{
+            data:null,
+            message:"User not found",
+            statusCode:404
+        }
+    }
+
+    const comparePassword = await bcrypt.compare(password,user.password);
+    if(!comparePassword){
+        return{
+            data:null,
+            message:"Wrong Password",
+            statusCode:400
+        }
+    }
+
+    const user = await User.findByIdAndUpdate(id,{password:changePassword},{new:true});
+
+    return{
+        data:null,
+        message:"Password Changed",
+        statusCode:200
+    }
+}

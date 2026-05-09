@@ -22,7 +22,7 @@ exports.loginEmailController = asyncHandler(async(req,res)=>{
 
 exports.registerProviderController = asyncHandler(async(req,res)=>{
     const {firstName,lastName,password,location,phoneNo,emailAddress,role} = req.body;
-    const admin = req.role;
+    const admin = req.id;
     const {data,message,statusCode} = await registerProviderService({firstName,lastName,password,location,phoneNo,emailAddress,role,admin});
     return res.status(statusCode).json(new apiResponse(statusCode,data,message));
 })
